@@ -1,8 +1,6 @@
 class TriEdge {
     startPoint: TriPoint;
     endPoint: TriPoint;
-    leftTriangle: Triangle;
-    rightTriangle: Triangle;
 
     constructor(start: TriPoint = null, end: TriPoint = null) {
         this.startPoint = start;

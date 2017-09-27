@@ -62,20 +62,29 @@ class AppContext {
   private static drawLines(): void {
     let _context: CanvasRenderingContext2D = AppContext.context;
     _context.strokeStyle = 'rgb(0,0,255)';
-    _context.lineWidth = 0.1;
+    _context.lineWidth = 1;
+    let edges: Array<TriEdge> = [];
     for (let t of AppContext.triangles) {
-      _context.moveTo(t.edge1.startPoint.x, t.edge1.startPoint.y);
-      _context.lineTo(t.edge1.endPoint.x, t.edge1.endPoint.y);
-      _context.stroke();
-      _context.moveTo(t.edge2.startPoint.x, t.edge2.startPoint.y);
-      _context.lineTo(t.edge2.endPoint.x, t.edge2.endPoint.y);
-      _context.stroke();
-      _context.moveTo(t.edge3.startPoint.x, t.edge3.startPoint.y);
-      _context.lineTo(t.edge3.endPoint.x, t.edge3.endPoint.y);
-      _context.stroke();
+      edges.push(t.edge1);
+      edges.push(t.edge2);
+      edges.push(t.edge3);
+    }
+    let map: Object = {};
+    for (let edge of edges) {
+      if (map[edge.startPoint.id + '==' + edge.endPoint.id] == null
+       && map[edge.endPoint.id + "==" + edge.startPoint.id] == null) {
+        _context.moveTo(edge.startPoint.x, edge.startPoint.y);
+        _context.lineTo(edge.endPoint.x, edge.endPoint.y);
+        _context.stroke();
+        map[edge.startPoint.id + '==' + edge.endPoint.id] = 1;
+        map[edge.endPoint.id + "==" + edge.startPoint.id] = 1;
+       }
     }
   }
 
+  /**
+   * 构造第一个三角形
+   */
   private static firstTriangle(): void {
     let index: number = 0;
     let length: number = Infinity;
@@ -99,9 +108,6 @@ class AppContext {
       angle.edge1 = triEdge1;
       angle.edge2 = triEdge2;
       angle.edge3 = triEdge3;
-      triEdge1.leftTriangle = angle;
-      triEdge2.leftTriangle = angle;
-      triEdge3.leftTriangle = angle;
       AppContext.edges.push(triEdge1);
       AppContext.edges.push(triEdge2);
       AppContext.edges.push(triEdge3);
@@ -116,9 +122,6 @@ class AppContext {
       angle.edge1 = triEdge1;
       angle.edge2 = triEdge2;
       angle.edge3 = triEdge3;
-      triEdge1.leftTriangle = angle;
-      triEdge2.leftTriangle = angle;
-      triEdge3.leftTriangle = angle;
       AppContext.edges.push(triEdge1);
       AppContext.edges.push(triEdge2);
       AppContext.edges.push(triEdge3);
@@ -126,6 +129,10 @@ class AppContext {
     }
   }
 
+
+  /**
+   * 构造余下的三角形
+   */
   private static buildDelaunay(): void {
     while (AppContext.edges.length != 0) {
       let edge: TriEdge = AppContext.edges[0];
@@ -139,14 +146,9 @@ class AppContext {
         let edge1 = new TriEdge(edge.startPoint, point2);
         let edge2 = new TriEdge(point2, edge.endPoint);
         let edge3 = new TriEdge(edge.endPoint, edge.startPoint);
-        edge1.leftTriangle = triangle;
-        edge2.leftTriangle = triangle;
-        edge3.leftTriangle = triangle;
         triangle.edge1 = edge1;
         triangle.edge2 = edge2;
         triangle.edge3 = edge3;
-        edge3.rightTriangle = edge.leftTriangle;
-        edge.rightTriangle = edge3.leftTriangle;
         AppContext.removeEdge(edge);
         AppContext.triangles.push(triangle);
         let edgeTemp = new TriEdge();
