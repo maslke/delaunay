@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
-        "target": "ES6",
+        "target": "es5",
         "noImplicitAny": false,
         "removeComments": false,
-        "sourceMap": false
+        "sourceMap": false,
+        "module":"amd"
     }
 }
